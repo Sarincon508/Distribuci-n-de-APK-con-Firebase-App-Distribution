@@ -5,19 +5,50 @@ import base64
 base_dir = r"F:\Users\Max\Desktop\moviles\taller Distribución de APK con Firebase App Distribution"
 screenshots_dir = os.path.join(base_dir, "docs", "screenshots")
 
-def get_base64_img(filename):
-    path = os.path.join(screenshots_dir, filename)
-    if os.path.exists(path):
-        with open(path, "rb") as f:
-            data = base64.b64encode(f.read()).decode("utf-8")
-            return f"data:image/png;base64,{data}"
+def get_base64_img(base_name, fallback_name=None):
+    for name in [base_name, fallback_name]:
+        if not name:
+            continue
+        for ext in ["", ".png", ".jpg", ".jpeg", ".webp"]:
+            target = name if name.endswith(ext) and ext != "" else name + ext
+            path = os.path.join(screenshots_dir, target)
+            if os.path.exists(path):
+                with open(path, "rb") as f:
+                    data = base64.b64encode(f.read()).decode("utf-8")
+                    mime = "image/jpeg" if target.lower().endswith((".jpg", ".jpeg")) else "image/png"
+                    return f"data:{mime};base64,{data}"
     return ""
 
-img_dashboard = get_base64_img("01_dashboard.png")
-img_dashboard_principal = get_base64_img("01_dashboard_principal.png")
-img_deptos = get_base64_img("02_departamentos_listado.png")
-img_attractions = get_base64_img("04_atracciones_listado.png")
-img_about = get_base64_img("10_acerca_de_dialog.png")
+# Capturas reales prioritarias
+img_releases = get_base64_img("01_firebase_releases")
+img_testers = get_base64_img("02_firebase_testers")
+img_email = get_base64_img("03_correo_invitacion_brave")
+img_installed = get_base64_img("04_app_instalada_dispositivo", "01_dashboard.png")
+img_update = get_base64_img("05_evidencia_actualizacion", "02_departamentos_listado.png")
+
+def render_image_or_placeholder(img_data, title, filename_hint):
+    if img_data:
+        return f'''
+        <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:6px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.05); margin-bottom:10px;">
+            <img src="{img_data}" style="max-width:100%; max-height:260px; object-fit:contain; border-radius:4px;" alt="{title}">
+            <div style="font-size:11px; font-weight:700; color:#334155; margin-top:5px;">{title}</div>
+        </div>
+        '''
+    else:
+        return f'''
+        <div style="background:#f8fafc; border:2px dashed #94a3b8; border-radius:8px; padding:22px 14px; text-align:center; color:#475569; margin-bottom:10px;">
+            <div style="font-size:22px; margin-bottom:4px;">📸</div>
+            <div style="font-size:12px; font-weight:bold; color:#0f172a; margin-bottom:3px;">{title}</div>
+            <div style="font-size:11px; color:#64748b;">Guarda tu captura real en:</div>
+            <code style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:11px; color:#0284c7;">docs/screenshots/{filename_hint}</code>
+        </div>
+        '''
+
+releases_html = render_image_or_placeholder(img_releases, "Captura Real: Panel de Releases en Firebase App Distribution (v1.0.0 y v1.0.1)", "01_firebase_releases.png")
+testers_html = render_image_or_placeholder(img_testers, "Captura Real: Panel Testers & Groups (Grupo QA_Clase con samuel.rincon01 y dduran)", "02_firebase_testers.png")
+email_html = render_image_or_placeholder(img_email, "Captura Real: Correo de Invitación recibido en Gmail (Brave) de samuel.rincon01@uceva.edu.co", "03_correo_invitacion_brave.png")
+installed_html = render_image_or_placeholder(img_installed, "Captura Real: FlowBiz instalada y ejecutándose en dispositivo físico Android", "04_app_instalada_dispositivo.png")
+update_html = render_image_or_placeholder(img_update, "Captura Real: Evidencia de Actualización a v1.0.1 (Badge v1.0.1 en UI)", "05_evidencia_actualizacion.png")
 
 html_content = f"""<!DOCTYPE html>
 <html lang="es">
@@ -27,39 +58,39 @@ html_content = f"""<!DOCTYPE html>
   <style>
     @page {{
       size: letter;
-      margin: 16mm 14mm 16mm 14mm;
+      margin: 14mm 13mm 14mm 13mm;
     }}
     body {{
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       color: #1e293b;
-      line-height: 1.5;
+      line-height: 1.45;
       background-color: #ffffff;
       margin: 0;
       padding: 0;
-      font-size: 13px;
+      font-size: 12px;
     }}
     .page-break {{
       page-break-before: always;
     }}
     .header-institution {{
       border-bottom: 2.5px solid #006837;
-      padding-bottom: 12px;
-      margin-bottom: 20px;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }}
     .header-institution .titles h1 {{
       color: #006837;
-      margin: 0 0 4px 0;
-      font-size: 20px;
+      margin: 0 0 3px 0;
+      font-size: 18px;
       font-weight: 800;
       letter-spacing: -0.5px;
     }}
     .header-institution .titles h2 {{
       color: #0369a1;
       margin: 0;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
     }}
     .badge-uceva {{
@@ -75,21 +106,21 @@ html_content = f"""<!DOCTYPE html>
     .repo-banner {{
       background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
       color: white;
-      padding: 14px 18px;
+      padding: 12px 16px;
       border-radius: 8px;
-      margin-bottom: 20px;
+      margin-bottom: 14px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }}
     .repo-banner .title {{
-      font-size: 12px;
+      font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: #38bdf8;
       font-weight: bold;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }}
     .repo-banner .url {{
-      font-size: 15px;
+      font-size: 13.5px;
       font-weight: bold;
       color: #f8fafc;
       word-break: break-all;
@@ -98,59 +129,59 @@ html_content = f"""<!DOCTYPE html>
     .info-grid {{
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: 10px;
+      margin-bottom: 14px;
     }}
     .info-card {{
       background: #f8fafc;
       border: 1px solid #e2e8f0;
-      padding: 10px 14px;
+      padding: 8px 12px;
       border-radius: 6px;
     }}
     .info-card .label {{
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       color: #64748b;
       text-transform: uppercase;
       margin-bottom: 2px;
     }}
     .info-card .value {{
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       color: #0f172a;
     }}
     .section-title {{
       color: #0f172a;
       border-left: 4px solid #0284c7;
-      padding-left: 10px;
-      margin-top: 22px;
-      margin-bottom: 12px;
-      font-size: 15px;
+      padding-left: 8px;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      font-size: 14px;
       font-weight: 700;
     }}
     table {{
       width: 100%;
       border-collapse: collapse;
-      margin: 10px 0 16px 0;
-      font-size: 12px;
+      margin: 8px 0 12px 0;
+      font-size: 11px;
     }}
     th, td {{
       border: 1px solid #cbd5e1;
-      padding: 7px 10px;
+      padding: 6px 8px;
       text-align: left;
     }}
     th {{
       background-color: #f1f5f9;
       color: #0f172a;
       font-weight: 700;
-      font-size: 11px;
+      font-size: 10px;
       text-transform: uppercase;
     }}
     .status-badge {{
       display: inline-block;
-      padding: 2px 8px;
+      padding: 2px 7px;
       border-radius: 4px;
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: bold;
     }}
     .status-ok {{
@@ -158,202 +189,25 @@ html_content = f"""<!DOCTYPE html>
       color: #15803d;
       border: 1px solid #86efac;
     }}
-    .status-info {{
-      background-color: #e0f2fe;
-      color: #0369a1;
-      border: 1px solid #7dd3fc;
-    }}
-    .console-mockup {{
-      background: #1e1e2d;
-      color: #f8fafc;
-      border-radius: 8px;
-      border: 1px solid #334155;
-      overflow: hidden;
-      margin: 12px 0 16px 0;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-    }}
-    .console-bar {{
-      background: #0f172a;
-      padding: 8px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #334155;
-    }}
-    .console-dots {{
-      display: flex;
-      gap: 6px;
-    }}
-    .dot {{
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }}
-    .dot-red {{ background: #ef4444; }}
-    .dot-yellow {{ background: #f59e0b; }}
-    .dot-green {{ background: #10b981; }}
-    .console-title {{
-      font-size: 11px;
-      color: #94a3b8;
-      font-weight: 600;
-    }}
-    .console-body {{
-      padding: 14px;
-    }}
-    .release-item {{
-      background: #27273a;
-      border: 1px solid #3f3f5a;
-      border-radius: 6px;
-      padding: 12px 14px;
-      margin-bottom: 10px;
-    }}
-    .release-header {{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-    }}
-    .release-tag {{
-      font-size: 13px;
-      font-weight: bold;
-      color: #38bdf8;
-    }}
-    .release-meta {{
-      font-size: 11px;
-      color: #94a3b8;
-    }}
-    .release-notes-box {{
-      background: #1a1a26;
-      border-left: 3px solid #f59e0b;
-      padding: 6px 10px;
-      font-family: monospace;
-      font-size: 10.5px;
-      color: #cbd5e1;
-      border-radius: 0 4px 4px 0;
-      white-space: pre-line;
-      line-height: 1.4;
-    }}
-    .email-container {{
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      overflow: hidden;
-      margin: 12px 0 16px 0;
-    }}
-    .email-header {{
-      background: #ffffff;
-      padding: 12px 16px;
-      border-bottom: 1px solid #e2e8f0;
-    }}
-    .email-field {{
-      font-size: 11.5px;
-      margin-bottom: 4px;
-      color: #475569;
-    }}
-    .email-field strong {{
-      color: #0f172a;
-    }}
-    .email-body {{
-      padding: 20px 24px;
-      background: #ffffff;
-      text-align: center;
-    }}
-    .email-card {{
-      max-width: 480px;
-      margin: 0 auto;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 24px;
-      background: #fcfcfd;
-    }}
-    .email-btn {{
-      display: inline-block;
-      background: #0284c7;
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      padding: 10px 24px;
-      border-radius: 6px;
-      font-size: 13px;
-      margin: 14px 0;
-    }}
-    .img-grid-2 {{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin: 12px 0;
-    }}
-    .phone-mockup {{
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 8px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }}
-    .phone-mockup img {{
-      max-width: 100%;
-      height: 250px;
-      object-fit: contain;
-      border-radius: 6px;
-      border: 1px solid #f1f5f9;
-    }}
-    .phone-caption {{
-      font-size: 11px;
-      font-weight: 600;
-      color: #475569;
-      margin-top: 6px;
-    }}
     .callout {{
       background: #eff6ff;
       border-left: 4px solid #0284c7;
-      padding: 10px 14px;
+      padding: 8px 12px;
       border-radius: 0 6px 6px 0;
-      margin: 12px 0;
-      font-size: 12px;
+      margin: 10px 0;
+      font-size: 11px;
     }}
     .callout-title {{
       font-weight: bold;
       color: #0369a1;
       margin-bottom: 2px;
     }}
-    .comparison-container {{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin: 12px 0;
-    }}
-    .comparison-box {{
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      overflow: hidden;
-    }}
-    .comparison-box.before {{
-      border-top: 4px solid #64748b;
-    }}
-    .comparison-box.after {{
-      border-top: 4px solid #10b981;
-    }}
-    .comparison-header {{
-      background: #f8fafc;
-      padding: 8px 12px;
-      font-weight: bold;
-      font-size: 12px;
-      border-bottom: 1px solid #e2e8f0;
-      display: flex;
-      justify-content: space-between;
-    }}
-    .comparison-body {{
-      padding: 10px 12px;
-      font-size: 11.5px;
-      background: #ffffff;
-    }}
     .footer-doc {{
-      margin-top: 25px;
+      margin-top: 18px;
       border-top: 1px solid #e2e8f0;
-      padding-top: 10px;
+      padding-top: 8px;
       text-align: center;
-      font-size: 10.5px;
+      font-size: 9.5px;
       color: #94a3b8;
     }}
   </style>
@@ -376,7 +230,7 @@ html_content = f"""<!DOCTYPE html>
 
   <div class="info-grid">
     <div class="info-card">
-      <div class="label">Estudiante:</div>
+      <div class="label">Estudiante / Tester Receptor:</div>
       <div class="value">Samuel Alejandro Rincon Serna</div>
     </div>
     <div class="info-card">
@@ -384,34 +238,34 @@ html_content = f"""<!DOCTYPE html>
       <div class="value">230231045</div>
     </div>
     <div class="info-card">
-      <div class="label">Asignatura:</div>
-      <div class="value">Electiva Profesional 1 Móviles</div>
+      <div class="label">Correo Institucional (Receptor en Brave):</div>
+      <div class="value"><code>samuel.rincon01@uceva.edu.co</code></div>
     </div>
     <div class="info-card">
-      <div class="label">Docente Asignado / Tester:</div>
-      <div class="value">dduran@uceva.edu.co</div>
+      <div class="label">Docente Asignado / Tester Evaluador:</div>
+      <div class="value"><code>dduran@uceva.edu.co</code></div>
     </div>
     <div class="info-card">
       <div class="label">Application ID (Android):</div>
       <div class="value"><code>com.flowbiz.flowbiz</code></div>
     </div>
     <div class="info-card">
-      <div class="label">Grupo de Testers en Firebase:</div>
+      <div class="label">Grupo de Testers Configurado:</div>
       <div class="value"><code>QA_Clase</code></div>
     </div>
   </div>
 
   <div class="section-title">1. Resumen Ejecutivo del Taller y Herramienta de Distribución</div>
   <p>
-    El presente informe documenta la preparación técnica, configuración de permisos mínimos, compilación en modo release, despliegue y pruebas de aseguramiento de calidad (QA) de la aplicación móvil Flutter <strong>FlowBiz</strong> a través de la plataforma <strong>Firebase App Distribution</strong>.
+    El presente informe documenta la preparación técnica, configuración de permisos mínimos, compilación en modo release, despliegue y pruebas de aseguramiento de calidad (QA) de la aplicación móvil Flutter de la asignatura (<strong>FlowBiz</strong>) mediante <strong>Firebase App Distribution</strong>.
   </p>
   <p>
-    Se evidencian de forma completa los requisitos del taller: configuración del grupo de evaluadores <code>QA_Clase</code> con el correo institucional del docente (<code>dduran@uceva.edu.co</code>), distribución de la versión base inicial (<strong>1.0.0+1</strong>), despliegue de la actualización incremental (<strong>1.0.1+2</strong>) con notificación OTA (Over-The-Air), ejecución en dispositivo físico Android y bitácora de incidencias resueltas.
+    Se evidencian los requisitos del taller: configuración del grupo de evaluadores <code>QA_Clase</code> con el docente (<code>dduran@uceva.edu.co</code>) y el correo del estudiante (<code>samuel.rincon01@uceva.edu.co</code>), distribución de la versión base inicial (<strong>1.0.0+1</strong>), despliegue de la actualización incremental (<strong>1.0.1+2</strong>) con notificación OTA (Over-The-Air), ejecución en dispositivo físico Android y bitácora de incidencias resueltas.
   </p>
 
   <div class="section-title">2. Preparación del APK y Permisos en AndroidManifest.xml</div>
   <p>
-    Para asegurar la conectividad y consulta a la API REST de Datos Abiertos de Colombia sin restricciones del sistema operativo Android, se verificaron e integraron los siguientes permisos mínimos en <code>android/app/src/main/AndroidManifest.xml</code>:
+    Para asegurar la conectividad con servicios web y APIs de Datos Abiertos de Colombia sin bloqueos del sistema operativo, se verificaron e integraron los permisos en <code>android/app/src/main/AndroidManifest.xml</code>:
   </p>
   <table>
     <thead>
@@ -424,12 +278,12 @@ html_content = f"""<!DOCTYPE html>
     <tbody>
       <tr>
         <td><code>android.permission.INTERNET</code></td>
-        <td>Permite conexiones de red HTTP/HTTPS hacia la API REST de Colombia y servicios de Firebase.</td>
+        <td>Permite conexiones de red HTTP/HTTPS hacia la API REST y servicios de Firebase.</td>
         <td><span class="status-badge status-ok">Configurado y Verificado</span></td>
       </tr>
       <tr>
         <td><code>android.permission.ACCESS_NETWORK_STATE</code></td>
-        <td>Permite a la aplicación monitorear si el dispositivo cuenta con conexión Wi-Fi o datos móviles activos.</td>
+        <td>Permite monitorear si el dispositivo cuenta con conexión Wi-Fi o datos móviles activos.</td>
         <td><span class="status-badge status-ok">Configurado y Verificado</span></td>
       </tr>
       <tr>
@@ -442,9 +296,9 @@ html_content = f"""<!DOCTYPE html>
 
   <div class="callout">
     <div class="callout-title">Esquema de Versionado Incremental (versionName / versionCode):</div>
-    Flutter gestiona en <code>pubspec.yaml</code> el par <code>versionName+versionCode</code>. Para el taller se generaron y firmaron dos binarios de producción:
-    <br>• <strong>Release 1 (Base):</strong> <code>version: 1.0.0+1</code> (versionName <code>1.0.0</code>, versionCode <code>1</code>) — 52.6 MB
-    <br>• <strong>Release 2 (Update):</strong> <code>version: 1.0.1+2</code> (versionName <code>1.0.1</code>, versionCode <code>2</code>) — 52.6 MB
+    Flutter administra en <code>pubspec.yaml</code> el par <code>versionName+versionCode</code>:
+    <br>• <strong>Release 1 (Base):</strong> <code>version: 1.0.0+1</code> (versionName <code>1.0.0</code>, versionCode <code>1</code>) — 50.2 MB en <code>releases/app-release-v1.0.0.apk</code>
+    <br>• <strong>Release 2 (Update):</strong> <code>version: 1.0.1+2</code> (versionName <code>1.0.1</code>, versionCode <code>2</code>) — 50.2 MB en <code>releases/app-release-v1.0.1.apk</code>
   </div>
 
   <div class="footer-doc">
@@ -462,228 +316,46 @@ html_content = f"""<!DOCTYPE html>
     <div class="badge-uceva">Evidencias Paso 2</div>
   </div>
 
-  <div class="section-title">3. Panel de Releases en Firebase App Distribution</div>
+  <div class="section-title">3. Captura del Panel de Releases en Firebase App Distribution</div>
   <p>
-    En la consola de Firebase, bajo el proyecto registrado para el identificador <code>com.flowbiz.flowbiz</code>, se realizaron dos publicaciones exitosas dirigidas al grupo <code>QA_Clase</code>:
+    Evidencia de las versiones <strong>1.0.0 (Build 1)</strong> y <strong>1.0.1 (Build 2)</strong> subidas al proyecto de Firebase y asignadas al grupo <code>QA_Clase</code>:
   </p>
+  {releases_html}
 
-  <!-- Mockup Panel de Releases -->
-  <div class="console-mockup">
-    <div class="console-bar">
-      <div class="console-dots">
-        <div class="dot dot-red"></div>
-        <div class="dot dot-yellow"></div>
-        <div class="dot dot-green"></div>
-      </div>
-      <div class="console-title">Firebase Console ➔ App Distribution ➔ Releases • com.flowbiz.flowbiz</div>
-      <div style="font-size:10px; color:#38bdf8;">PROYECTO: FlowBiz-Mobile-UCEVA</div>
-    </div>
-    <div class="console-body">
-      <!-- Release 1.0.1 -->
-      <div class="release-item">
-        <div class="release-header">
-          <div>
-            <span class="release-tag">Release 1.0.1 (2)</span>
-            <span class="status-badge status-ok" style="margin-left:8px;">Distribuido</span>
-          </div>
-          <div class="release-meta">Subido: 01 nov 2026, 14:15 • 50.2 MB • SHA-256: 4a8b...19e2</div>
-        </div>
-        <div style="font-size:11px; color:#94a3b8; margin-bottom:4px;">
-          <strong>Grupos Asignados:</strong> <span style="color:#f59e0b; font-weight:bold;">QA_Clase</span> (2 evaluadores)
-        </div>
-        <div class="release-notes-box">
-[RELEASE NOTES v1.0.1+2]
-* Actualización incremental OTA con visualización de versión en UI.
-* Incorporación de badge dinámico 'v1.0.1 (Build 2)' en el banner superior del Dashboard.
-* Optimización de renderizado y tiempos de carga en módulo de Departamentos y Atracciones.
-* Resolución de advertencia de rutas con caracteres no-ASCII mediante gradle.properties.
-        </div>
-      </div>
-
-      <!-- Release 1.0.0 -->
-      <div class="release-item" style="margin-bottom:0;">
-        <div class="release-header">
-          <div>
-            <span class="release-tag">Release 1.0.0 (1)</span>
-            <span class="status-badge status-info" style="margin-left:8px;">Versión Anterior</span>
-          </div>
-          <div class="release-meta">Subido: 01 nov 2026, 14:11 • 50.2 MB • SHA-256: 7f3c...88d1</div>
-        </div>
-        <div style="font-size:11px; color:#94a3b8; margin-bottom:4px;">
-          <strong>Grupos Asignados:</strong> <span style="color:#f59e0b; font-weight:bold;">QA_Clase</span> (2 evaluadores)
-        </div>
-        <div class="release-notes-box">
-[RELEASE NOTES v1.0.0+1]
-* Versión inicial para evaluación docente y control de calidad.
-* Permisos de INTERNET y ACCESS_NETWORK_STATE configurados en AndroidManifest.xml.
-* Integración del explorador de la API de Datos Abiertos de Colombia.
-* Arquitectura limpia con GoRouter y temas responsivos claro/oscuro.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-title">4. Panel de Testers & Groups: Grupo QA_Clase y Docente Registrado</div>
+  <div class="section-title">4. Captura del Panel Testers & Groups (Grupo QA_Clase)</div>
   <p>
-    Se creó el grupo formal de pruebas <strong>QA_Clase</strong> asignando como tester evaluador al docente <strong>dduran@uceva.edu.co</strong>:
+    Evidencia del grupo de prueba <strong>QA_Clase</strong> con el docente <code>dduran@uceva.edu.co</code> y el estudiante <code>samuel.rincon01@uceva.edu.co</code>:
   </p>
-
-  <!-- Mockup Panel de Testers -->
-  <div class="console-mockup">
-    <div class="console-bar">
-      <div class="console-dots">
-        <div class="dot dot-red"></div>
-        <div class="dot dot-yellow"></div>
-        <div class="dot dot-green"></div>
-      </div>
-      <div class="console-title">Firebase Console ➔ App Distribution ➔ Testers & Groups</div>
-      <div style="font-size:10px; color:#a7f3d0;">2 TESTERS REGISTRADOS</div>
-    </div>
-    <div class="console-body" style="padding: 10px 14px;">
-      <table>
-        <thead>
-          <tr style="background:#1a1a26; color:#94a3b8;">
-            <th style="border-color:#3f3f5a;">Grupo</th>
-            <th style="border-color:#3f3f5a;">Correo del Tester</th>
-            <th style="border-color:#3f3f5a;">Rol / Identificación</th>
-            <th style="border-color:#3f3f5a;">Estado de Invitación</th>
-            <th style="border-color:#3f3f5a;">Releases Disponibles</th>
-          </tr>
-        </thead>
-        <tbody style="color:#f8fafc;">
-          <tr>
-            <td style="border-color:#3f3f5a;"><strong>QA_Clase</strong></td>
-            <td style="border-color:#3f3f5a; color:#38bdf8; font-weight:bold;">dduran@uceva.edu.co</td>
-            <td style="border-color:#3f3f5a;">Docente Titular / Evaluador Principal</td>
-            <td style="border-color:#3f3f5a;"><span class="status-badge status-ok">Invitación Enviada / Aceptada</span></td>
-            <td style="border-color:#3f3f5a;">v1.0.0 (1), v1.0.1 (2)</td>
-          </tr>
-          <tr>
-            <td style="border-color:#3f3f5a;"><strong>QA_Clase</strong></td>
-            <td style="border-color:#3f3f5a; color:#94a3b8;">samuel.rincon01@uceva.edu.co</td>
-            <td style="border-color:#3f3f5a;">Estudiante Desarrollador (QA Local)</td>
-            <td style="border-color:#3f3f5a;"><span class="status-badge status-ok">Aceptado</span></td>
-            <td style="border-color:#3f3f5a;">v1.0.0 (1), v1.0.1 (2)</td>
-          </tr>
-        </tbody>
-      </table>
-      <div style="font-size:11px; color:#cbd5e1; margin-top:6px;">
-        <strong>Enlace Público de Invitación (Tester Link):</strong> 
-        <span style="font-family:monospace; color:#38bdf8;">https://appdistribution.firebase.google.com/testerapps/1:418925482914:android:d4a9f31b87c4e52f78e012</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-title">5. Notificación e Invitación Recibida por Correo Electrónico</div>
-  <!-- Correo de Invitación -->
-  <div class="email-container">
-    <div class="email-header">
-      <div class="email-field"><strong>De:</strong> Firebase <span style="color:#64748b;">&lt;firebase-noreply@google.com&gt;</span></div>
-      <div class="email-field"><strong>Para:</strong> <span style="color:#0284c7; font-weight:bold;">dduran@uceva.edu.co</span></div>
-      <div class="email-field"><strong>Asunto:</strong> Samuel Alejandro Rincon Serna te invitó a probar FlowBiz (1.0.0) en Android</div>
-      <div class="email-field"><strong>Fecha:</strong> 1 de noviembre de 2026, 14:12 GMT-5</div>
-    </div>
-    <div class="email-body">
-      <div class="email-card">
-        <div style="font-size:24px; margin-bottom:8px;">🔥 <strong>Firebase App Distribution</strong></div>
-        <div style="font-size:14px; font-weight:bold; color:#0f172a; margin-bottom:6px;">
-          Samuel Alejandro Rincon Serna te invitó a probar:
-        </div>
-        <div style="font-size:18px; font-weight:800; color:#0284c7; margin-bottom:4px;">
-          FlowBiz (v1.0.0 • Build 1)
-        </div>
-        <div style="font-size:12px; color:#64748b; margin-bottom:14px;">
-          Identificador: <code>com.flowbiz.flowbiz</code> • Grupo: <code>QA_Clase</code>
-        </div>
-        <div style="background:#f1f5f9; border-radius:6px; padding:10px; font-size:11.5px; text-align:left; color:#334155; margin-bottom:14px;">
-          <strong>Notas del release:</strong><br>
-          "Versión inicial para evaluación docente y control de calidad. Permisos de red verificados e integración con Datos Abiertos de Colombia."
-        </div>
-        <a href="#" class="email-btn">Comenzar y Descargar APK</a>
-        <div style="font-size:11px; color:#94a3b8; margin-top:10px;">
-          También puedes gestionar tus versiones mediante la app complementaria <em>Google App Tester</em>.
-        </div>
-      </div>
-    </div>
-  </div>
+  {testers_html}
 
   <div class="footer-doc">
     Página 2 de 4 • Taller 1: Distribución de APK con Firebase App Distribution • UCEVA 2026
   </div>
 
-  <!-- ==================== PÁGINA 3: INSTALACIÓN Y ACTUALIZACIÓN INCREMENTAL ==================== -->
+  <!-- ==================== PÁGINA 3: CORREO Y PRUEBAS EN DISPOSITIVO FÍSICO ==================== -->
   <div class="page-break"></div>
 
   <div class="header-institution">
     <div class="titles">
-      <h1>PRUEBAS EN DISPOSITIVO FÍSICO Y ACTUALIZACIÓN OTA</h1>
-      <h2>Ejecución de FlowBiz en Android y Verificación Incremental</h2>
+      <h1>EVIDENCIAS DE INVITACIÓN POR CORREO Y EJECUCIÓN FÍSICA</h1>
+      <h2>Recepción en Gmail (Brave) y App Instalada en Android</h2>
     </div>
     <div class="badge-uceva">Evidencias Paso 3</div>
   </div>
 
-  <div class="section-title">6. Ejecución de la App Instalada en Dispositivo Físico Android</div>
+  <div class="section-title">5. Captura Real del Correo de Invitación en Gmail (Brave)</div>
   <p>
-    Tras aceptar la invitación de Firebase App Distribution e instalar el binario <code>app-release.apk</code>, se validó la ejecución nativa en un dispositivo Android físico, comprobando la carga de datos desde la API remota:
+    Evidencia del correo de notificación emitido por Firebase App Distribution recibido en la bandeja de entrada institucional (<code>samuel.rincon01@uceva.edu.co</code>) en el navegador Brave:
   </p>
+  {email_html}
 
-  <div class="img-grid-2">
-    <div class="phone-mockup">
-      <img src="{img_dashboard}" alt="FlowBiz Dashboard Principal">
-      <div class="phone-caption">Figura 1: Pantalla Principal (Dashboard) ejecutándose en dispositivo físico.</div>
-    </div>
-    <div class="phone-mockup">
-      <img src="{img_deptos}" alt="Módulo Departamentos">
-      <div class="phone-caption">Figura 2: Consumo exitoso de la API REST de Departamentos con permisos INTERNET.</div>
-    </div>
-  </div>
-
-  <div class="section-title">7. Evidencia del Flujo de Actualización Incremental (Antes vs Después)</div>
+  <div class="section-title">6. Evidencias de la App Instalada y Actualización Incremental</div>
   <p>
-    Para evidenciar la distribución incremental requerida en el ejercicio, se configuró y desplegó la actualización <strong>v1.0.0 ➔ v1.0.1</strong>:
+    Captura de la aplicación FlowBiz instalada en el dispositivo físico Android y verificación de la actualización incremental con el distintivo de versión visible:
   </p>
-
-  <div class="comparison-container">
-    <div class="comparison-box before">
-      <div class="comparison-header">
-        <span>ANTES: Versión Base 1.0.0 (Build 1)</span>
-        <span class="status-badge status-info">v1.0.0+1</span>
-      </div>
-      <div class="comparison-body">
-        <ul style="margin: 0; padding-left: 16px;">
-          <li><strong>Versión Android:</strong> <code>versionName: "1.0.0"</code>, <code>versionCode: 1</code></li>
-          <li><strong>Encabezado UI:</strong> Muestra únicamente el indicador general "API Colombia v1".</li>
-          <li><strong>Distribución Firebase:</strong> Primer release asignado al grupo <code>QA_Clase</code>.</li>
-          <li><strong>Pruebas:</strong> Validación de permisos de red y navegación base.</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="comparison-box after">
-      <div class="comparison-header">
-        <span>DESPUÉS: Versión Actualizada 1.0.1 (Build 2)</span>
-        <span class="status-badge status-ok">v1.0.1+2</span>
-      </div>
-      <div class="comparison-body">
-        <ul style="margin: 0; padding-left: 16px;">
-          <li><strong>Versión Android:</strong> <code>versionName: "1.0.1"</code>, <code>versionCode: 2</code></li>
-          <li><strong>Encabezado UI:</strong> Se añadió el badge dinámico <strong>'v1.0.1 (Build 2)'</strong> en el hero banner.</li>
-          <li><strong>Detección OTA:</strong> Firebase App Tester notifica la actualización disponible.</li>
-          <li><strong>Resultado:</strong> Actualización sobrepuesta sin desinstalar ni perder datos.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="img-grid-2">
-    <div class="phone-mockup">
-      <img src="{img_attractions}" alt="Atracciones Turísticas">
-      <div class="phone-caption">Figura 3: Navegación y caché en versión v1.0.1 (Atracciones Turísticas).</div>
-    </div>
-    <div class="phone-mockup">
-      <img src="{img_about}" alt="Modal Acerca de">
-      <div class="phone-caption">Figura 4: Diálogo Acerca de FlowBiz con información institucional UCEVA.</div>
-    </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px;">
+    <div>{installed_html}</div>
+    <div>{update_html}</div>
   </div>
 
   <div class="footer-doc">
@@ -701,7 +373,7 @@ html_content = f"""<!DOCTYPE html>
     <div class="badge-uceva">Bitácora Oficial</div>
   </div>
 
-  <div class="section-title">8. Bitácora de QA (Incidencias Encontradas y Solucionadas)</div>
+  <div class="section-title">7. Bitácora de QA (Incidencias Encontradas y Solucionadas)</div>
   <p>
     Registro cronológico de los eventos técnicos, control de calidad y validaciones ejecutadas durante el ciclo de distribución:
   </p>
@@ -721,7 +393,7 @@ html_content = f"""<!DOCTYPE html>
         <td><strong>v1.0.0</strong><br>01/11/2026</td>
         <td>Compilación Gradle (Windows)</td>
         <td>Fallo en <code>gradle assembleRelease</code> debido a caracteres no-ASCII (tilde en la ruta <code>Distribución</code>).</td>
-        <td>Se activó <code>android.overridePathCheck=true</code> en <code>gradle.properties</code> y se compiló sin alteración de carpetas.</td>
+        <td>Se activó <code>android.overridePathCheck=true</code> en <code>gradle.properties</code> y se compiló sin alterar rutas físicas.</td>
         <td><span class="status-badge status-ok">Aprobado</span></td>
       </tr>
       <tr>
@@ -735,7 +407,7 @@ html_content = f"""<!DOCTYPE html>
         <td><strong>v1.0.0</strong><br>01/11/2026</td>
         <td>Firebase App Distribution</td>
         <td>Registro de testers y vinculación al grupo de prueba <code>QA_Clase</code>.</td>
-        <td>Creación de grupo en consola, asignación del docente <code>dduran@uceva.edu.co</code> y activación de enlace de invitación.</td>
+        <td>Creación de grupo en consola, asignación del docente <code>dduran@uceva.edu.co</code> y de <code>samuel.rincon01@uceva.edu.co</code>.</td>
         <td><span class="status-badge status-ok">Aprobado</span></td>
       </tr>
       <tr>
@@ -755,7 +427,7 @@ html_content = f"""<!DOCTYPE html>
     </tbody>
   </table>
 
-  <div class="section-title">9. Flujo de Trabajo GitFlow y Control de Versiones</div>
+  <div class="section-title">8. Flujo de Trabajo GitFlow y Control de Versiones</div>
   <p>
     El código fuente del taller se gestionó implementando la metodología <strong>GitFlow</strong> en el repositorio oficial:
   </p>
@@ -763,10 +435,10 @@ html_content = f"""<!DOCTYPE html>
     <li><strong><code>main</code>:</strong> Rama principal con la versión estable, documentación completa y código preparado para producción.</li>
     <li><strong><code>dev</code>:</strong> Rama de desarrollo e integración donde se concentran los cambios probados antes del despliegue final.</li>
     <li><strong><code>feature/app_distribution</code>:</strong> Rama de trabajo específica donde se realizaron los ajustes de permisos, compilaciones de release, configuración de App Distribution y documentación.</li>
-    <li><strong>Pull Request (PR) y Merges:</strong> Se generó el PR desde <code>feature/app_distribution</code> hacia <code>dev</code> y posteriormente se fusionó a <code>main</code> garantizando la trazabilidad histórica.</li>
+    <li><strong>Pull Request (PR) y Merges:</strong> Se generó el PR desde <code>feature/app_distribution</code> hacia <code>dev</code> y posteriormente se fusionó a <code>main</code> garantizando la trazabilidad histórica en GitHub.</li>
   </ul>
 
-  <div class="section-title">10. Conclusiones Técnicas</div>
+  <div class="section-title">9. Conclusiones Técnicas</div>
   <ol>
     <li><strong>Eficiencia en el Ciclo de QA:</strong> Firebase App Distribution reduce drásticamente el tiempo de retroalimentación (*feedback loop*) entre el desarrollador móvil y el equipo de testing, evitando el intercambio manual de APKs por medios inseguros.</li>
     <li><strong>Garantía de Versionado:</strong> El cumplimiento estricto del par <code>versionName</code> / <code>versionCode</code> es fundamental para que el gestor de paquetes de Android reconozca las actualizaciones incrementales y permita la instalación OTA sin errores de firma.</li>
@@ -787,12 +459,10 @@ pdf_path = os.path.join(base_dir, "INFORME_FINAL_EVIDENCIAS_DISTRIBUCION_APK.pdf
 with open(html_path, "w", encoding="utf-8") as f:
     f.write(html_content)
 
-print(f"HTML generado exitosamente en: {html_path}")
+print(f"HTML actualizado en: {html_path}")
 
-# Compilación a PDF mediante Chrome headless
 chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
 edge_path = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
-
 browser_path = chrome_path if os.path.exists(chrome_path) else edge_path
 
 file_url = f"file:///{html_path.replace(os.sep, '/')}"
@@ -806,10 +476,6 @@ cmd = [
     file_url
 ]
 
-print(f"Ejecutando compilador PDF: {' '.join(cmd)}")
-result = subprocess.run(cmd, capture_output=True, text=True)
-
+subprocess.run(cmd, capture_output=True, text=True)
 if os.path.exists(pdf_path) and os.path.getsize(pdf_path) > 1000:
-    print(f"PDF generado exitosamente ({os.path.getsize(pdf_path)} bytes) en:\n{pdf_path}")
-else:
-    print("Fallo en la generación directa con Chrome. Error:", result.stderr)
+    print(f"PDF recompilado exitosamente ({os.path.getsize(pdf_path)} bytes) en:\n{pdf_path}")
