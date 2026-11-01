@@ -1,0 +1,87 @@
+================================================================================
+TALLER 1: DISTRIBUCIÓN DE APK CON FIREBASE APP DISTRIBUTION
+ELECTIVA PROFESIONAL 1 MÓVILES - INGENIERÍA DE SISTEMAS
+UNIDAD CENTRAL DEL VALLE DEL CAUCA (UCEVA)
+================================================================================
+
+DATOS DEL ESTUDIANTE:
+---------------------
+- Nombre Completo: Samuel Alejandro Rincon Serna
+- Código Estudiantil: 230231045
+- Correo Institucional: samuel.rincon01@uceva.edu.co
+- Docente Asignado / Tester: dduran@uceva.edu.co
+- Semestre: 2026-II
+
+ENLACES DEL PROYECTO:
+---------------------
+- Repositorio GitHub Oficial:
+  https://github.com/Sarincon508/Distribuci-n-de-APK-con-Firebase-App-Distribution.git
+
+- Enlace de Instalación / Invitación Firebase App Distribution (Grupo QA_Clase):
+  https://appdistribution.firebase.google.com/testerapps/1:418925482914:android:d4a9f31b87c4e52f78e012
+
+- Identificador de la Aplicación (Application ID):
+  com.flowbiz.flowbiz
+
+- Grupo de Testers Configurado:
+  QA_Clase (Tester incluido: dduran@uceva.edu.co)
+
+================================================================================
+NOTAS DE LA VERSIÓN / RELEASE NOTES
+================================================================================
+
+--------------------------------------------------------------------------------
+RELEASE v1.0.0 (Build 1)
+--------------------------------------------------------------------------------
+Fecha de Publicación: 01 de Noviembre de 2026
+Versión: 1.0.0+1
+Tipo de Release: Versión Inicial de Prueba (Release Candidate 1)
+Grupo Destino: QA_Clase
+Responsable: Samuel Alejandro Rincon Serna (QA & Mobile Dev)
+
+DESCRIPCIÓN GENERAL:
+Primer despliegue de FlowBiz en Firebase App Distribution para el equipo de pruebas
+de calidad de la asignatura Móviles UCEVA.
+
+CAMBIOS INCLUIDOS:
+* Configuración de permisos de red en AndroidManifest.xml (INTERNET y ACCESS_NETWORK_STATE).
+* Integración del explorador de la API de Datos Abiertos de Colombia:
+  - Módulo de Departamentos (32 departamentos, capitales, superficie y población).
+  - Módulo de Atracciones Turísticas (destinos y patrimonio cultural).
+  - Módulo de Presidentes (periodos presidenciales y partidos políticos).
+  - Módulo de Platos Típicos (gastronomía tradicional por regiones).
+* Implementación de navegación fluida con GoRouter y manejo de estados asíncronos.
+* Compilación optimizada en modo Release con firma digital y compresión de assets.
+
+CREDENCIALES Y GUÍA DE PRUEBA:
+* No requiere credenciales iniciales para navegación en el explorador.
+* Pruebas prioritarias: Verificar carga fluida de listas con conexión a Internet y
+  transición entre vistas de detalle.
+
+--------------------------------------------------------------------------------
+RELEASE v1.0.1 (Build 2)
+--------------------------------------------------------------------------------
+Fecha de Publicación: 01 de Noviembre de 2026
+Versión: 1.0.1+2
+Tipo de Release: Actualización Incremental OTA (Update Verification)
+Grupo Destino: QA_Clase
+Responsable: Samuel Alejandro Rincon Serna (QA & Mobile Dev)
+
+DESCRIPCIÓN GENERAL:
+Actualización incremental de FlowBiz diseñada para validar la detección, descarga e
+instalación en caliente de una nueva versión mediante Firebase App Tester en el dispositivo físico.
+
+CAMBIOS INCLUIDOS:
+* Actualización de versión interna a versionName 1.0.1 y versionCode 2 (pubspec.yaml).
+* Incorporación de distintivo visual dinámico 'v1.0.1 (Build 2)' en el banner principal
+  del Dashboard para verificación visual inmediata del tester tras la actualización.
+* Corrección de compatibilidad en rutas de compilación Windows mediante bandera
+  'android.overridePathCheck=true' en gradle.properties.
+* Optimización de consumo de memoria al consultar los listados paginados de la API.
+* Verificación exitosa del flujo incremental de actualización sin pérdida de datos en caché.
+
+NOTAS PARA EL TESTER:
+* Al abrir la app instalada o la herramienta Firebase App Tester, se notificará la
+  disponibilidad de la versión 1.0.1.
+* Aceptar la actualización para evidenciar el cambio de versión reflejado en el encabezado.
+================================================================================
