@@ -24,7 +24,7 @@ ENLACES DEL PROYECTO:
   com.flowbiz.flowbiz
 
 - Grupo de Testers Configurado:
-  QA_Clase (Tester incluido: dduran@uceva.edu.co)
+  QA_Clase (Testers incluidos: dduran@uceva.edu.co, samuel.rincon01@uceva.edu.co)
 
 ================================================================================
 NOTAS DE LA VERSIÓN / RELEASE NOTES
